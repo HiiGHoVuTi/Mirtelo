@@ -20,6 +20,7 @@ jobs:
       #   run: curl -sSL https://get.haskellstack.org/ | sh
 
       - name: Run a one-line script
-        run: | 
+        run: |
+          ls
           cd Server
           stack test
