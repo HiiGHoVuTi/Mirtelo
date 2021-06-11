@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup Stack
-        uses: mstksg/setup-stack@v2
+        run: curl -sSL https://get.haskellstack.org/ | sh
 
       - name: Run a one-line script
         run: | 
