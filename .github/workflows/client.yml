@@ -51,4 +51,4 @@ jobs:
       - name: Run tests
         run: |
           cd client
-          cargo  --release --verbose
+          cargo test --release --verbose
