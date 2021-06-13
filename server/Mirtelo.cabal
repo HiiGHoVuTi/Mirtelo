@@ -37,6 +37,8 @@ library
 executable Mirtelo-exe
   main-is: Main.hs
   other-modules:
+      DB
+      WS
       Paths_Mirtelo
   hs-source-dirs:
       app
@@ -44,6 +46,10 @@ executable Mirtelo-exe
   build-depends:
       Mirtelo
     , base >=4.7 && <5
+    , mongoDB
+    , text
+    , transformers
+    , websockets
   default-language: Haskell2010
 
 test-suite Mirtelo-test

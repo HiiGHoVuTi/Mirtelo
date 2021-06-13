@@ -35,6 +35,10 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - Mirtelo
+    - mongoDB
+    - transformers
+    - text
+    - websockets
 
 tests:
   Mirtelo-test:
