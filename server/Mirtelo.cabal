@@ -47,7 +47,9 @@ executable Mirtelo-exe
       Mirtelo
     , base >=4.7 && <5
     , mongoDB
+    , mtl
     , text
+    , text-show
     , transformers
     , websockets
   default-language: Haskell2010
