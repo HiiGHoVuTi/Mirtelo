@@ -28,7 +28,8 @@ library:
 executables:
   Mirtelo-exe:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:
+      app
     ghc-options:
     - -threaded
     - -rtsopts
@@ -40,6 +41,9 @@ executables:
     - transformers
     - text
     - text-show
+    - bytestring
+    - aeson
+    - AesonBson
     - websockets
 
 tests:

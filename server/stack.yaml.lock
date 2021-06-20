@@ -3,7 +3,18 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    name: AesonBson
+    version: 0.4.0
+    git: https://github.com/nh2/aesonbson.git
+    pantry-tree:
+      size: 476
+      sha256: ad3dd2a7403c9668123104b70ba2077d10e635562b009c41471b9b4b7e064f9b
+    commit: 4f9f86b7efe49acc45fdb7d6905039c6b96c08fd
+  original:
+    git: https://github.com/nh2/aesonbson.git
+    commit: 4f9f86b7efe49acc45fdb7d6905039c6b96c08fd
 snapshots:
 - completed:
     size: 567679

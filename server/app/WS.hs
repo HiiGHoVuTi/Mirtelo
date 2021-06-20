@@ -1,8 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module WS (
-  run_server
+  run_server,
+
+  Client,
+  ServerState
           ) where
+
+import DB
+import WebClasses
+import qualified Plugins.Connections as Connections
 
 import Data.Char (isPunctuation, isSpace)
 import Data.Monoid (mappend)
@@ -14,13 +21,14 @@ import Control.Concurrent (MVar, newMVar, modifyMVar, modifyMVar_, readMVar)
 import Control.Monad.Trans (liftIO)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
+import qualified Data.ByteString as BS
 import TextShow
 import Database.MongoDB
 
 import qualified Network.WebSockets as WS
 
-type Client = (Text, WS.Connection)
-type ServerState = [Client]
+import qualified Data.Aeson as A
+import qualified Data.AesonBson as AB
 
 newServerState :: ServerState
 newServerState = []
@@ -37,21 +45,28 @@ addClient client clients = client : clients
 removeClient :: Client -> ServerState -> ServerState
 removeClient client = filter ((/= fst client) . fst)
 
-broadcast :: Text -> ServerState -> IO ()
-broadcast message clients = do
+broadcast_text :: Text -> ServerState -> IO ()
+broadcast_text message clients = do
   T.putStrLn $ "Sending: " <> message
   forM_ clients $ \(_, conn) -> WS.sendTextData conn message
+
+broadcast_BSON :: [Document] -> ServerState -> IO ()
+broadcast_BSON docs = let
+      aeson = map AB.aesonify docs
+      json  = A.encode aeson
+      text  = showt json
+  in  broadcast_text text
 
 cast :: Text -> WS.Connection -> IO ()
 cast message conn = do
   WS.sendTextData conn message
 
-run_server :: (Action IO [Document] -> IO [Document]) -> IO ()
+run_server :: PipeRun -> IO ()
 run_server pipe = do
   state <- newMVar newServerState
   WS.runServer "localhost" 8000 $ application state pipe
 
-application :: MVar ServerState -> (Action IO [Document] -> IO [Document]) -> WS.ServerApp
+application :: MVar ServerState -> PipeRun -> WS.ServerApp
 application state pipe pending = do
   conn <- WS.acceptRequest pending
   WS.withPingThread conn 30 (return()) $ do
@@ -68,6 +83,7 @@ application state pipe pending = do
           modifyMVar_ state $ \s -> do
             let s' = addClient client s
             -- user connected
+            Connections.on Connections.Connect client s' pipe
             return s'
           talk client state pipe
         where
@@ -76,17 +92,18 @@ application state pipe pending = do
           disconnect = do
             s <- modifyMVar state $ \s ->
               let s' = removeClient client s in return (s', s')
-            -- user disconnected
+              -- user disconnected
+            Connections.on Connections.Disconnect client s pipe
             return ()
 
-talk :: Client -> MVar ServerState -> (Action IO [Document] -> IO [Document]) -> IO ()
+talk :: Client -> MVar ServerState -> PipeRun -> IO ()
 talk (user, conn) state run = forever $ do
   msg <- WS.receiveData conn
   T.putStrLn $ "Received: " <> msg
   run $ do
     all_people
   db_response <- run all_people
-  readMVar state >>= broadcast (showt $ show db_response :: Text)
+  readMVar state >>= broadcast_BSON db_response
   return ()
 
 all_people :: Action IO [Document]

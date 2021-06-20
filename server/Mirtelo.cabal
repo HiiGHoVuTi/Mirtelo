@@ -38,14 +38,19 @@ executable Mirtelo-exe
   main-is: Main.hs
   other-modules:
       DB
+      Plugins.Connections
+      WebClasses
       WS
       Paths_Mirtelo
   hs-source-dirs:
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      Mirtelo
+      AesonBson
+    , Mirtelo
+    , aeson
     , base >=4.7 && <5
+    , bytestring
     , mongoDB
     , mtl
     , text
