@@ -7,6 +7,8 @@ module WS (
   ServerState
           ) where
 
+import Prelude hiding (lookup)
+
 import DB
 import WebClasses
 import qualified Plugins.Connections as Connections
@@ -50,11 +52,10 @@ broadcast_text message clients = do
   T.putStrLn $ "Sending: " <> message
   forM_ clients $ \(_, conn) -> WS.sendTextData conn message
 
-broadcast_BSON :: [Document] -> ServerState -> IO ()
+
+broadcast_BSON :: Document -> ServerState -> IO ()
 broadcast_BSON docs = let
-      aeson = map AB.aesonify docs
-      json  = A.encode aeson
-      text  = showt json
+      text = bson_to_text docs
   in  broadcast_text text
 
 cast :: Text -> WS.Connection -> IO ()
@@ -96,15 +97,43 @@ application state pipe pending = do
             Connections.on Connections.Disconnect client s pipe
             return ()
 
+-- decode_client_message :: ... -> Document
+decode_client_message = ( A.decode !?> AB.bsonify nul )
+  where nul = \_-> Float 0
+
 talk :: Client -> MVar ServerState -> PipeRun -> IO ()
-talk (user, conn) state run = forever $ do
+talk client@(user, conn) state run = forever $ do
   msg <- WS.receiveData conn
-  T.putStrLn $ "Received: " <> msg
-  run $ do
-    all_people
-  db_response <- run all_people
-  readMVar state >>= broadcast_BSON db_response
+  -- T.putStrLn $ "Received: " <> msg
+  -- db_response <- run all_people
+  -- readMVar state >>= broadcast_BSON sample_message -- db_response
+  doc <- return $ decode_client_message msg
+  react client run state doc
+  -- readMVar state >>= broadcast_BSON doc
   return ()
+
+
+react :: Client -> PipeRun -> MVar ServerState -> Document -> IO ()
+react client@(user, conn) run state doc = case doc `decode` "intent" of
+  Just "\"message\"" -> do
+    -- create new message based on the content here
+    let inner    = "contents" `lookup` doc <?> []
+
+        contents = inner `decode` "contents"
+        thread   = inner `decode` "thread"
+        author   = ["_id" =: user]
+
+        msg      = networkMessage (contents <?>"") (thread <?>"") author
+
+    readMVar state >>= broadcast_BSON msg
+  otherwise         -> do
+    WS.sendTextData conn ("invalid intent." :: Text)
+  where
+    decode x k = (bsonValue_to_text <$> k `look` x) :: Maybe Text
+
 
 all_people :: Action IO [Document]
 all_people = rest =<< find (select [] "people") {sort = []}
+
+sample_message :: Document
+sample_message = networkMessage "717064" "156460" ["_id" =: ("541402" :: Text)]

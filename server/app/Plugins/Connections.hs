@@ -1,4 +1,6 @@
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Plugins.Connections (
   Event (..),
   on
@@ -6,9 +8,9 @@ module Plugins.Connections (
 
 import DB
 import WebClasses
+import qualified Data.Text as T
 
-
-data Event = Connect | Disconnect
+data Event = Connect | Disconnect | Message
 on :: Event -> Client -> ServerState -> PipeRun -> IO ()
 
 
