@@ -3,7 +3,7 @@
 module Main where
 
 import WS (run_server)
-
+import DB (run)
 
 import Database.MongoDB
 import qualified Data.Text as T
@@ -14,11 +14,10 @@ main = do
   putStrLn "Server is now up !"
 
   run pipe $ do
-    delete $ select [] "people"
-    insert "people" ["name" =: "Joe", "last" =: "M"]
+    -- delete $ select [] "message"
+    -- insert "message" ["author" =: "Maxime", "contents" =: "Welcome !", "thread" =: "\"general>main\""]
+    return()
 
-  run_server $ run pipe
+  run_server pipe
 
   close pipe
-  where
-    run pipe = access pipe master "database"

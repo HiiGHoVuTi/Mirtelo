@@ -10,8 +10,10 @@ import DB
 import WebClasses
 import qualified Data.Text as T
 
+import Database.MongoDB
+
 data Event = Connect | Disconnect | Message
-on :: Event -> Client -> ServerState -> PipeRun -> IO ()
+on :: Event -> Client -> ServerState -> Pipe -> IO ()
 
 
 -- on socket connection

@@ -3,9 +3,14 @@
 
 
 module DB (
-  PipeRun,
 
-  networkMessage
+  run,
+
+  networkMessage,
+  recentMessages,
+
+
+  saveMessage,
           ) where
 
 
@@ -24,7 +29,7 @@ import qualified Data.AesonBson as AB
 
 
 
-type PipeRun = (Action IO [Document] -> IO [Document])
+run pipe = access pipe master "database"
 
 
 -- utils
@@ -42,6 +47,12 @@ message contents thread author = ["author" =: gid author, "contents" =: contents
 
 networkMessage :: Text -> Text -> Document -> Document
 networkMessage c t a = packIntent "message" $ message c t a
+
+saveMessage :: Document -> Action IO Value
+saveMessage doc = insert "message" doc
+
+recentMessages :: [Document] -> Document
+recentMessages msgs = packIntent "recent messages" ["messages" =: msgs]
 
 
 packIntent :: Text -> Document -> Document
