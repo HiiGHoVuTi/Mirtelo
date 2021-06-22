@@ -25,7 +25,7 @@ jobs:
           # Minimum quality score from 0 (worst) to 100 (best)
           min_quality_score: 0 # will be adapted
           # Maximum defect rate per line of code (e.g. 0.01 for 1 defect per 100 lines of code). Leave 0 to ignore.
-          max_defects_rate: 0
+          max_defects_rate: 0.1
           # Maximum number of complex functions rate (e.g. number of complex functions / number of functions). Leave 0 to ignore.
           max_complex_functions_rate: 1
           # Maximum number of long functions rate (e.g. number of long functions / number of functions). Leave 0 to ignore.
