@@ -23,3 +23,6 @@ jobs:
         run: |
           cd server
           stack test
+          
+      - name: haskell-stan
+        uses: kowainik/stan-action@v0
