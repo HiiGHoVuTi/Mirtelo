@@ -24,8 +24,8 @@ jobs:
           cd server
           stack test
           
-      - name: Ormolu
-        uses: mrkkrp/ormolu-action@v1
+      # - name: Ormolu
+      #   uses: mrkkrp/ormolu-action@v1
         
       - name: Haskell Linter
         uses: domdere/haskell-lint-action@v1.0.2
