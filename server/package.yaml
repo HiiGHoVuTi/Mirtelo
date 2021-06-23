@@ -21,6 +21,16 @@ description:         Please see the README on GitHub at <https://github.com/HiiG
 
 dependencies:
 - base >= 4.7 && < 5
+- mtl
+- mongoDB
+- transformers
+- text
+- text-show
+- bytestring
+- aeson
+- AesonBson
+- websockets
+- QuickCheck
 
 library:
   source-dirs: src
@@ -36,24 +46,14 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - Mirtelo
-    - mtl
-    - mongoDB
-    - transformers
-    - text
-    - text-show
-    - bytestring
-    - aeson
-    - AesonBson
-    - websockets
 
 tests:
   Mirtelo-test:
     main:                Spec.hs
-    source-dirs:         test
+    source-dirs:         test, app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - Mirtelo
-    - QuickCheck

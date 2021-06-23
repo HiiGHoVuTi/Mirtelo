@@ -1,4 +1,6 @@
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module WebClasses (
   Client,
   ServerState,
@@ -8,7 +10,8 @@ module WebClasses (
   (!?>), (<?>)
                   ) where
 
-import Data.Text as T
+import qualified Data.Text as T
+import Data.Text (Text)
 import TextShow
 
 import Data.Text.Lazy (toStrict)
@@ -31,13 +34,13 @@ bson_to_text :: Document -> Text
 bson_to_text docs = let
       aeson = AB.aesonify docs
       json  = A.encodeToTextBuilder aeson
-  in  toStrict . toLazyText $ json
+  in  T.replace "\\\\" "\\" . T.replace "\\\"" "" . toStrict . toLazyText $ json
 
 bsonValue_to_text :: Value -> Text
 bsonValue_to_text docs = let
       aeson = AB.aesonifyValue docs
       json  = A.encodeToTextBuilder aeson
-  in  toStrict . toLazyText $ json
+  in  T.replace "\\\\" "\\" . T.replace "\\\"" "" . toStrict . toLazyText $ json
 
 
 -- Don't mind this mess, or fix if you know the proper haskell built-ins
@@ -48,8 +51,7 @@ bsonValue_to_text docs = let
     g' (Just x) = Just (g x)
 
 (!?>) :: (a -> Maybe b) -> (b -> Document) -> a -> Document
-(!?>) f g x = d $ f ??> g $ x
-  where d Nothing = [] ; d (Just x) = x
+(!?>) f g x = (f ??> g $ x) <?> []
 
 (<?>) :: Maybe a -> a -> a
 (<?>) (Just val) _ = val
