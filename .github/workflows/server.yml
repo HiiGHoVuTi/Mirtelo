@@ -23,3 +23,6 @@ jobs:
         run: |
           cd server
           stack test
+          
+      # - name: Ormolu
+      #   uses: mrkkrp/ormolu-action@v1      

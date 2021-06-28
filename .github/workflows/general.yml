@@ -1,0 +1,36 @@
+name: General CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code Inspector GitHub action
+        uses: codeinspectorio/github-action@v1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          code_inspector_access_key: ${{ secrets.CODE_INSPECTOR_ACCESS_KEY }}
+          code_inspector_secret_key: ${{ secrets.CODE_INSPECTOR_SECRET_KEY }}
+          
+          # Minimum grade. Valid options are EXCELLENT, GOOD, NEUTRAL, WARNING, CRITICAL. Leave blank to ignore.
+          min_quality_grade: "NEUTRAL"
+          # Minimum quality score from 0 (worst) to 100 (best)
+          min_quality_score: 0 # will be adapted
+          # Maximum defect rate per line of code (e.g. 0.01 for 1 defect per 100 lines of code). Leave 0 to ignore.
+          max_defects_rate: 0.1
+          # Maximum number of complex functions rate (e.g. number of complex functions / number of functions). Leave 0 to ignore.
+          max_complex_functions_rate: 1
+          # Maximum number of long functions rate (e.g. number of long functions / number of functions). Leave 0 to ignore.
+          max_long_functions_rate: 0.5
+          # Project on code inspector. Will use the preferences of this analysis. Leave blank and no preferences are used
+          project_name: "Mirtelo"
+          # Timeout before giving up (in case analysis takes too long). Default is 10 minutes
+          max_timeout_sec: 600
